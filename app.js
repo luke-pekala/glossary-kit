@@ -12,9 +12,39 @@ function saveGlossary() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(glossary));
 }
 
+// ── Stats ──────────────────────────────────────────────
+function updateStats(filtered) {
+  const statsBar  = document.getElementById("stats-bar");
+  const total     = glossary.length;
+
+  if (total === 0) {
+    statsBar.setAttribute("data-state", "empty");
+    return;
+  }
+
+  statsBar.setAttribute("data-state", "loaded");
+  document.getElementById("stat-total").textContent   = total;
+  document.getElementById("stat-showing").textContent = filtered.length;
+
+  // Most recently added term
+  const latest = [...glossary].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  )[0];
+  document.getElementById("stat-last").textContent = latest ? latest.term : "—";
+
+  // Pane count badge
+  const countEl = document.getElementById("glossary-count");
+  if (countEl) {
+    countEl.textContent =
+      filtered.length === total
+        ? `${total} term${total !== 1 ? "s" : ""}`
+        : `${filtered.length} of ${total}`;
+  }
+}
+
 // ── Render ─────────────────────────────────────────────
 function renderGlossary(filter = "") {
-  const list = document.getElementById("glossary-list");
+  const list  = document.getElementById("glossary-list");
   const query = filter.toLowerCase().trim();
 
   const filtered = glossary.filter(
@@ -25,12 +55,24 @@ function renderGlossary(filter = "") {
 
   filtered.sort((a, b) => a.term.localeCompare(b.term));
 
+  updateStats(filtered);
+
   if (filtered.length === 0) {
-    list.innerHTML = `<p class="empty-state">${
-      query
-        ? `No results for "<strong>${escapeHTML(query)}</strong>"`
-        : "No terms yet. Add your first term above."
-    }</p>`;
+    if (query) {
+      list.innerHTML = `<p class="empty-state">No results for "<strong>${escapeHTML(query)}</strong>"</p>`;
+    } else {
+      list.innerHTML = `
+        <div class="results-panel__empty">
+          <svg class="empty-illustration" width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 6h16M4 10h10M4 14h12M4 18h8"
+                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <p class="empty-title">Your glossary is empty</p>
+          <p class="empty-subtitle">
+            Add your first term on the left, or <strong>Import JSON</strong> to load an existing glossary.
+          </p>
+        </div>`;
+    }
     return;
   }
 
@@ -56,9 +98,9 @@ function renderGlossary(filter = "") {
 // ── CRUD ───────────────────────────────────────────────
 function addTerm() {
   const termInput = document.getElementById("term-input");
-  const defInput = document.getElementById("definition-input");
+  const defInput  = document.getElementById("definition-input");
 
-  const term = termInput.value.trim();
+  const term       = termInput.value.trim();
   const definition = defInput.value.trim();
 
   if (!term || !definition) {
@@ -87,7 +129,7 @@ function addTerm() {
   showToast(`✅ "${term}" added`);
 
   termInput.value = "";
-  defInput.value = "";
+  defInput.value  = "";
   termInput.focus();
 }
 
@@ -112,7 +154,7 @@ function editTerm(id) {
   const newDef = prompt("Edit definition:", item.definition);
   if (newDef === null || newDef.trim() === "") return;
 
-  item.term = newTerm.trim();
+  item.term       = newTerm.trim();
   item.definition = newDef.trim();
 
   saveGlossary();
@@ -156,8 +198,8 @@ function exportCSV() {
 
 function triggerDownload(blob, filename) {
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
+  const a   = document.createElement("a");
+  a.href     = url;
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
@@ -197,7 +239,7 @@ function importJSON(event) {
         return;
       }
 
-      let added = 0;
+      let added   = 0;
       let skipped = 0;
 
       imported.forEach((incoming) => {
@@ -211,9 +253,9 @@ function importJSON(event) {
         } else {
           glossary.push({
             id: String(Date.now()) + Math.random().toString(36).slice(2),
-            term: incoming.term.trim(),
+            term:       incoming.term.trim(),
             definition: incoming.definition.trim(),
-            createdAt: incoming.createdAt || new Date().toISOString(),
+            createdAt:  incoming.createdAt || new Date().toISOString(),
           });
           added++;
         }
@@ -250,9 +292,9 @@ function formatDate(iso) {
   if (!iso) return "";
   const d = new Date(iso);
   return d.toLocaleDateString("en-GB", {
-    day: "numeric",
+    day:   "numeric",
     month: "short",
-    year: "numeric",
+    year:  "numeric",
   });
 }
 
@@ -262,6 +304,39 @@ function showToast(message) {
   toast.classList.add("show");
   setTimeout(() => toast.classList.remove("show"), 3000);
 }
+
+// ── Theme Toggle ───────────────────────────────────────
+document.getElementById("theme-toggle").addEventListener("click", function () {
+  const current = document.documentElement.getAttribute("data-theme");
+  const next    = current === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  try { localStorage.setItem("gk-theme", next); } catch (e) {}
+});
+
+// ── Changelog Toggle ───────────────────────────────────
+function toggleChangelog(open) {
+  const panel      = document.getElementById("changelog-panel");
+  const toggleBtn  = document.getElementById("changelog-toggle");
+  const versionBtn = document.getElementById("version-tag");
+
+  const isOpen = open !== undefined ? open : panel.hasAttribute("hidden");
+
+  if (isOpen) {
+    panel.removeAttribute("hidden");
+  } else {
+    panel.setAttribute("hidden", "");
+  }
+
+  const expanded = String(isOpen);
+  if (toggleBtn)  toggleBtn.setAttribute("aria-expanded", expanded);
+  if (versionBtn) versionBtn.setAttribute("aria-expanded", expanded);
+}
+
+document.getElementById("changelog-toggle")
+  .addEventListener("click", () => toggleChangelog());
+
+document.getElementById("version-tag")
+  .addEventListener("click", () => toggleChangelog());
 
 // ── Event Wiring ───────────────────────────────────────
 document.getElementById("add-btn").addEventListener("click", addTerm);

@@ -1,268 +1,274 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GlossaryKit</title>
+
+    <!-- Apply saved theme before first paint to prevent flash -->
+    <script>
+      (function () {
+        try {
+          const saved = localStorage.getItem('gk-theme');
+          if (saved === 'light' || saved === 'dark') {
+            document.documentElement.setAttribute('data-theme', saved);
+          }
+        } catch (e) {}
+      })();
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@300;400;500&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <!-- Background grid (same as Style Guard) -->
-    <div class="bg-grid" aria-hidden="true"></div>
 
-    <div class="app-wrapper">
-      <!-- ── Header ── -->
-      <header class="site-header">
-        <div class="header-inner">
-          <div class="brand">
-            <div class="brand-icon">
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                <path
-                  d="M4 6h16M4 10h10M4 14h12M4 18h8"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                />
-              </svg>
-            </div>
-            <div>
-              <div class="brand-name">
-                Glossary<span class="brand-accent">Kit</span>
-              </div>
-              <div class="brand-tagline">Technical Glossary Manager</div>
-            </div>
+    <!-- ░░ HEADER ░░ -->
+    <header class="site-header">
+      <div class="header-inner">
+
+        <div class="brand">
+          <div class="brand-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 6h16M4 10h10M4 14h12M4 18h8"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
           </div>
-          <div class="header-meta">
-            <span class="meta-badge">v0.0</span>
-            <span class="meta-badge meta-badge--outline">localStorage</span>
+          <div class="brand-text">
+            <h1 class="brand-name">GlossaryKit</h1>
+            <p class="brand-tagline">Technical Glossary Manager</p>
           </div>
         </div>
-      </header>
 
-      <!-- ── Main ── -->
-      <main class="main-content">
-        <!-- Left column: Add + Search + Export -->
-        <div class="left-col">
-          <!-- Add a Term -->
-          <div class="section-header">
-            <h2 class="section-title">
-              <span class="section-title__number">01</span>
-              Add a Term
-            </h2>
-            <p class="section-desc">
-              Enter a term and its definition to add it to your glossary.
-            </p>
-          </div>
+        <div class="header-right">
+          <button id="version-tag" class="version-tag" type="button"
+                  aria-controls="changelog-panel" aria-expanded="false">v0.0</button>
 
-          <div class="input-panel">
-            <div class="input-group">
-              <label class="input-label" for="term-input">TERM</label>
-              <input
-                type="text"
-                id="term-input"
-                class="text-input"
-                placeholder="e.g. API, Endpoint, Payload"
-                autocomplete="off"
-              />
-            </div>
-            <div class="input-group">
-              <label class="input-label" for="definition-input"
-                >DEFINITION</label
-              >
-              <textarea
-                id="definition-input"
-                class="def-textarea"
-                placeholder="Write the definition here..."
-                rows="5"
-              ></textarea>
-            </div>
-            <div class="controls-bar">
-              <button id="add-btn" class="btn btn--primary">
-                <span class="btn__icon">
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 5v14M5 12h14"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                      stroke-linecap="round"
-                    />
-                  </svg>
-                </span>
-                <span class="btn__label">Add Term</span>
-                <span class="btn__shortcut">⌘↵</span>
-              </button>
-              <div class="controls-divider"></div>
-              <button id="export-json-btn" class="btn btn--ghost">
-                ⬇ JSON
-              </button>
-              <button id="export-csv-btn" class="btn btn--ghost">⬇ CSV</button>
-              <label
-                id="import-label"
-                for="import-input"
-                class="btn btn--import"
-                >⬆ Import</label
-              >
-              <input type="file" id="import-input" accept=".json" />
-            </div>
-          </div>
-
-          <!-- Search -->
-          <div class="section-header" style="margin-top: 2rem">
-            <h2 class="section-title">
-              <span class="section-title__number">02</span>
-              Search
-            </h2>
-            <p class="section-desc">
-              Filter terms and definitions in real time.
-            </p>
-          </div>
-          <div class="search-wrapper">
-            <svg
-              class="search-icon"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <circle
-                cx="11"
-                cy="11"
-                r="7"
-                stroke="currentColor"
-                stroke-width="2"
-              />
-              <path
-                d="M16.5 16.5L21 21"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-              />
+          <button id="theme-toggle" class="btn btn--icon"
+                  type="button" aria-label="Toggle light/dark mode">
+            <svg class="icon-moon" width="14" height="14" viewBox="0 0 24 24"
+                 fill="none" aria-hidden="true">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"
+                    stroke="currentColor" stroke-width="1.75"
+                    stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
+            <span class="theme-toggle-label label-dark">Dark</span>
+            <svg class="icon-sun" width="14" height="14" viewBox="0 0 24 24"
+                 fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.75"/>
+              <line x1="12" y1="2"  x2="12" y2="4"  stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+              <line x1="12" y1="20" x2="12" y2="22" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+              <line x1="2"  y1="12" x2="4"  y2="12" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+              <line x1="20" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+              <line x1="4.22"  y1="4.22"  x2="5.64"  y2="5.64"  stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+              <line x1="4.22"  y1="19.78" x2="5.64"  y2="18.36" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+              <line x1="18.36" y1="5.64"  x2="19.78" y2="4.22"  stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+            </svg>
+            <span class="theme-toggle-label label-light">Light</span>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- ░░ MAIN ░░ -->
+    <main class="app-shell">
+
+      <!-- ── LEFT PANE: Add + Search + Stats ── -->
+      <section class="pane pane--input" aria-labelledby="add-heading">
+
+        <!-- Add a Term -->
+        <div class="pane-header">
+          <h2 id="add-heading" class="pane-title">
+            <span class="pane-step">01</span>
+            Add a Term
+          </h2>
+        </div>
+
+        <div class="pane-body">
+          <div class="input-group">
+            <label class="input-label" for="term-input">Term</label>
             <input
               type="text"
-              id="search-input"
-              class="search-input"
-              placeholder="Search terms and definitions..."
+              id="term-input"
+              class="text-input"
+              placeholder="e.g. API, Endpoint, Payload"
               autocomplete="off"
             />
           </div>
+          <div class="input-group">
+            <label class="input-label" for="definition-input">Definition</label>
+            <textarea
+              id="definition-input"
+              class="def-textarea"
+              placeholder="Write the definition here..."
+              rows="5"
+            ></textarea>
+          </div>
+        </div>
 
-          <!-- Stats bar -->
-          <div class="stats-bar" id="stats-bar" data-state="empty">
-            <div class="stats-bar__empty-state">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="9"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                />
-                <path
-                  d="M12 8v4M12 16h.01"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                />
-              </svg>
-              No terms yet — add your first one above.
+        <div class="input-actions">
+          <button id="add-btn" class="btn btn--primary" type="button">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 5v14M5 12h14" stroke="currentColor"
+                    stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+            Add Term
+            <span class="btn__shortcut">⌘↵</span>
+          </button>
+          <div class="controls-divider"></div>
+          <button id="export-json-btn" class="btn btn--ghost" type="button">⬇ JSON</button>
+          <button id="export-csv-btn"  class="btn btn--ghost" type="button">⬇ CSV</button>
+          <label for="import-input" class="btn btn--ghost" style="cursor:pointer;">⬆ Import</label>
+          <input type="file" id="import-input" accept=".json" />
+        </div>
+
+        <!-- Search -->
+        <div class="pane-header pane-header--mid">
+          <h2 class="pane-title">
+            <span class="pane-step">02</span>
+            Search
+          </h2>
+        </div>
+
+        <div class="pane-search">
+          <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24"
+               fill="none" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+            <path d="M16.5 16.5L21 21" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <input
+            type="text"
+            id="search-input"
+            class="search-input"
+            placeholder="Search terms and definitions..."
+            autocomplete="off"
+            aria-label="Search terms and definitions"
+          />
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-bar" id="stats-bar" data-state="empty">
+          <div class="stats-bar__empty-state">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M12 8v4M12 16h.01" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            No terms yet — add your first one above.
+          </div>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-label">Total</span>
+              <span class="stat-value" id="stat-total">0</span>
             </div>
-            <div class="stats-grid">
-              <div class="stat-item">
-                <span class="stat-label">Total Terms</span>
-                <span class="stat-value" id="stat-total">0</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-label">Showing</span>
-                <span class="stat-value" id="stat-showing">0</span>
-              </div>
+            <div class="stat-item">
+              <span class="stat-label">Showing</span>
+              <span class="stat-value" id="stat-showing">0</span>
             </div>
-            <div class="stats-bar__score">
-              <span class="score-label">Last Added</span>
-              <span class="score-value" id="stat-last">—</span>
+            <div class="stat-item">
+              <span class="stat-label">Last Added</span>
+              <span class="stat-value stat-value--last" id="stat-last">—</span>
             </div>
           </div>
         </div>
 
-        <!-- Right column: Glossary list -->
-        <div class="right-col">
-          <div class="section-header">
-            <h2 class="section-title">
-              <span class="section-title__number">03</span>
-              Glossary
-            </h2>
-            <p class="section-desc">
-              Your terms, sorted A–Z. Click Edit or Delete to manage entries.
+      </section>
+
+      <!-- ── RIGHT PANE: Glossary ── -->
+      <section class="pane pane--output" aria-labelledby="glossary-heading">
+
+        <div class="pane-header">
+          <h2 id="glossary-heading" class="pane-title">
+            <span class="pane-step">03</span>
+            Glossary
+          </h2>
+          <span class="pane-count" id="glossary-count" aria-live="polite"></span>
+        </div>
+
+        <div id="glossary-list" class="results-panel" tabindex="0"
+             role="region" aria-labelledby="glossary-heading" aria-live="polite">
+          <div class="results-panel__empty">
+            <svg class="empty-illustration" width="40" height="40"
+                 viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 6h16M4 10h10M4 14h12M4 18h8"
+                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <p class="empty-title">Your glossary is empty</p>
+            <p class="empty-subtitle">
+              Add your first term on the left, or
+              <strong>Import JSON</strong> to load an existing glossary.
             </p>
           </div>
+        </div>
 
-          <div class="results-panel" id="glossary-list" tabindex="0">
-            <div class="results-panel__empty">
-              <svg
-                class="empty-illustration"
-                width="40"
-                height="40"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M4 6h16M4 10h10M4 14h12M4 18h8"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                />
-              </svg>
-              <p class="empty-title">Your glossary is empty</p>
-              <p class="empty-subtitle">
-                Add your first term on the left, or
-                <strong>Import JSON</strong> to load an existing glossary.
-              </p>
+      </section>
+
+    </main>
+
+    <!-- ░░ CHANGELOG PANEL ░░ -->
+    <aside id="changelog-panel" class="changelog-panel" aria-label="Version history" hidden>
+      <div class="changelog-inner">
+        <div class="changelog-header">
+          <span class="changelog-title">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.3"/>
+              <line x1="7" y1="4" x2="7" y2="7.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              <circle cx="7" cy="9.5" r="0.6" fill="currentColor"/>
+            </svg>
+            Version history
+          </span>
+          <a class="changelog-gh-link"
+             href="https://github.com/lukepekala1-afk/glossary-kit-app/releases"
+             target="_blank" rel="noopener noreferrer">
+            View on GitHub
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+              <path d="M2 8L8 2M8 2H4M8 2V6" stroke="currentColor" stroke-width="1.3"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        </div>
+        <div class="changelog-content">
+          <div class="changelog-release">
+            <div class="changelog-release-header">
+              <span class="changelog-version">v0.0</span>
+              <span class="changelog-date">Mar 2026</span>
+              <span class="changelog-latest-badge">latest</span>
             </div>
+            <ul class="changelog-items">
+              <li class="changelog-item">Full CRUD — add, edit, delete glossary terms</li>
+              <li class="changelog-item">Real-time search across terms and definitions</li>
+              <li class="changelog-item">Export to JSON and CSV</li>
+              <li class="changelog-item">Import JSON with duplicate detection</li>
+              <li class="changelog-item">localStorage persistence</li>
+              <li class="changelog-item">Dark / light theme toggle</li>
+            </ul>
           </div>
         </div>
-      </main>
+      </div>
+    </aside>
 
-      <!-- ── Footer ── -->
-      <footer class="app-footer">
-        <span class="footer-copy"
-          >GlossaryKit &copy; 2026 (by Luke Pekala).</span
-        >
-        <div class="footer-links">
-          <a href="#" class="footer-link">GitHub</a>
-          <a href="#" class="footer-link">Portfolio</a>
-          <a href="#" class="footer-link">Export</a>
-        </div>
-      </footer>
-    </div>
-    <!-- /app-wrapper -->
+    <!-- ░░ FOOTER ░░ -->
+    <footer class="site-footer">
+      <div class="site-footer-inner">
+        <p>GlossaryKit &mdash; technical glossary manager for teams that care about clarity.</p>
+        <button id="changelog-toggle" class="changelog-toggle-btn" type="button"
+                aria-expanded="false" aria-controls="changelog-panel">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
+               aria-hidden="true" class="changelog-toggle-chevron">
+            <path d="M2 4.5L6 8.5L10 4.5" stroke="currentColor" stroke-width="1.4"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          What's new
+        </button>
+      </div>
+    </footer>
 
     <!-- Toast -->
     <div id="toast" role="status" aria-live="polite"></div>
